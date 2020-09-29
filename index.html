@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<!--This can be played with arrow keys as well as on-screen buttons-->
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+	<title> Snake Game </title>
+
+<style>
+
+.but{
+	width: 24%;
+	height: 100px;
+	border: 1px solid red;
+}
+
+</style>
+
+</head>
+<body>
+
+<center>
+<canvas>
+</canvas>
+</center>
+
+	<div class="buttons">
+	    
+		<input type="button" id="b1" class="but" value="^">
+		<input type="button" id="b2" class="but" value="v">
+		<input type="button" id="b3" class="but" value="<">
+		<input type="button" id="b4" class="but" value=">">
+		
+	</div>
+
+<script>
+
+var c = document.querySelector("canvas");
+var cc = c.getContext("2d");
+var mainWid = window.innerWidth - 20;
+var mainHit = window.innerHeight - 80;
+var scorew;
+var scoreh;
+
+var sx = Math.floor(1/100*mainHit);
+var smx = -Math.floor(1/100*mainHit);
+var sy = Math.floor(1/100*mainHit);
+var smy = -Math.floor(1/100*mainHit);
+
+var snake = {
+	x: window.mainWid/2,
+	y: window.mainHit/2,
+	vx: 0,
+	vy: smy,
+	width: 20,
+	height: 20
+}
+
+var tail = 1;
+var trail = [];
+
+var food = {
+	x: Math.floor(Math.random()*mainWid-10),
+	y: Math.floor(Math.random()*mainHit-10),
+	width: 15,
+	height: 15
+}
+
+var score = 0;
+var hscore = 0;
+
+var b1 = document.querySelector("#b1");
+var b2 = document.querySelector("#b2");
+var b3 = document.querySelector("#b3");
+var b4 = document.querySelector("#b4"); 
+
+b1.addEventListener("click",moveup);
+b2.addEventListener("click",movedown);
+b3.addEventListener("click",moveleft);
+b4.addEventListener("click",moveright);
+
+document.addEventListener("keydown",controls);
+
+function controls(e){
+	if (e.keyCode == 37){
+		snake.vx = smx;
+		snake.vy = 0;
+	}
+	if (e.keyCode == 38){
+		snake.vx = 0;
+		snake.vy = smy;
+	}
+	if (e.keyCode == 39){
+		snake.vx = sx;
+		snake.vy = 0;
+	}
+	if (e.keyCode == 40){
+		snake.vx = 0;
+		snake.vy = sy;		
+	}	
+}
+
+function moveup(){
+	snake.vx = 0;
+	snake.vy = smy;
+}
+
+function movedown(){
+	snake.vx = 0;
+	snake.vy = sy;
+}
+
+function moveleft(){
+	snake.vx = smx;
+	snake.vy = 0;
+}
+
+function moveright(){
+	snake.vx = sx;
+	snake.vy = 0;
+}
+
+function update(){
+	snake.x += snake.vx;
+	snake.y += snake.vy;
+
+	if (snake.x < 0){
+		snake.x = c.width;
+	}
+
+	if (snake.x > c.width){
+		snake.x = 0;
+	}
+
+	if (snake.y < 0){
+		snake.y = c.height;
+	}
+
+	if (snake.y > c.height){
+		snake.y = 0;
+	}
+
+	if (
+		snake.x <= food.x + food.width &&
+		snake.y <= food.y + food.height &&
+		food.x <= snake.x + food.width &&
+		food.y <= snake.y + food.height
+		){
+		score++;
+		tail += 3;
+		food.x = Math.floor(Math.random()*c.width-10);
+		food.y = Math.floor(Math.random()*c.height-10);
+	}
+
+	for (var i=0;i<trail.length;i++){
+		if (trail[i].x == snake.x && trail[i].y == snake.y){
+			tail = 1;
+			if (hscore <= score){
+				hscore = score;
+			}
+			score = 0;
+		}
+	}
+
+	trail.push({x: snake.x, y: snake.y});
+	while (trail.length > tail){
+		trail.shift();
+	}
+}
+
+function render(){
+	cc.fillStyle = "black";
+	cc.fillRect(0,0,c.width,c.height);
+
+	for (var i=0;i<trail.length;i++){
+		cc.fillStyle = "green";
+		cc.fillRect(trail[i].x,trail[i].y,snake.width,snake.height);
+	}
+
+	cc.fillStyle = "red";
+	cc.fillRect(food.x,food.y,food.width,food.height);
+
+	cc.fillStyle = "white";
+	cc.font = "20px Aerial";
+	cc.fillText("Score: "+score+"   HighScore: "+hscore,scorew,scoreh);
+}
+
+function loop(){
+	render();
+	update();
+}
+
+setInterval(loop,1000/60);
+
+window.onload = function(){
+	init();
+	window.addEventListener("resize",init,false);
+}
+
+function init(){
+	mainWid = window.innerWidth - 20;
+	mainHit = window.innerHeight - 140;
+	c.width = mainWid;
+	c.height = mainHit;
+	scoreWid = mainWid/2 - 100;
+	scoreHit = 50;	
+	scoreh = scoreHit;
+	scorew = scoreWid;
+}
+
+</script>
+
+</body>
+
+</html>
